@@ -34,7 +34,7 @@ public class ${className} {
 <#list extract.fromTypes as fromUnit>
 <#list extract.toTypes as toUnit>
 <#if fromUnit == "Date" || fromUnit == "Time" || fromUnit == "TimeStamp">
-<#if !(fromUnit == "Time" && (toUnit == "Year" || toUnit == "Month" || toUnit == "Day"))>
+<#if !(fromUnit == "Time" && (toUnit == "Year" || toUnit == "Month" || toUnit == "Week" || toUnit == "Weekday" || toUnit == "Day"))>
   @FunctionTemplate(name = "extract${toUnit}", scope = FunctionTemplate.FunctionScope.SIMPLE,
       nulls = FunctionTemplate.NullHandling.NULL_IF_NULL)
   public static class ${toUnit}From${fromUnit} implements DrillSimpleFunc {
@@ -63,6 +63,10 @@ public class ${className} {
       out.value = dateTime.getHourOfDay();
     <#elseif toUnit = "Day">
       out.value = dateTime.getDayOfMonth();
+    <#elseif toUnit = "WeekDay">
+      out.value = dateTime.getDayOfWeek();
+    <#elseif toUnit = "Week">
+      out.value = dateTime.getWeekOfWeekyear();
     <#elseif toUnit = "Month">
       out.value = dateTime.getMonthOfYear();
     <#elseif toUnit = "Year">

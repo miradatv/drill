@@ -32,6 +32,8 @@
               { ref: "extractMinute", expr: "extractMinute(castExp)" },
               { ref: "extractHour", expr: "extractHour(castExp)" },
               { ref: "extractDay", expr: "extractDay(castExp)" },
+              { ref: "extractWeekday", expr: "extractWeekday(castExp)" },
+              { ref: "extractWeek", expr: "extractWeek(castExp)" },
               { ref: "extractMonth", expr: "extractMonth(castExp)" },
               { ref: "extractYear", expr: "extractYear(castExp)" }
             ]

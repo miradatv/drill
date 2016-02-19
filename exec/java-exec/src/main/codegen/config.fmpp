@@ -40,7 +40,6 @@ data: {
     parser:                   tdd(../data/Parser.tdd),
     dateIntervalFunc:         tdd(../data/DateIntervalFunc.tdd),
     intervalNumericTypes:     tdd(../data/IntervalNumericTypes.tdd),
-    extract:                  tdd(../data/ExtractTypes.tdd),
     sumzero:                  tdd(../data/SumZero.tdd),
     numericTypes:             tdd(../data/NumericTypes.tdd),
     casthigh:                 tdd(../data/CastHigh.tdd),
