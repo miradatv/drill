@@ -246,7 +246,7 @@ public class BlockMapBuilder {
         DrillbitEndpoint endpoint = getDrillBitEndpoint(host);
         if (endpoint != null) {
           endpointByteMap.add(endpoint, bytes);
-        } else {
+        } else if (!host.equals("localhost")) {
           logger.info("Failure finding Drillbit running on host {}.  Skipping affinity to that host.", host);
         }
       }
