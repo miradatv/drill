@@ -17,8 +17,6 @@
  */
 package org.apache.drill.jdbc.impl;
 
-import org.apache.drill.exec.proto.UserProtos.PreparedStatement;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -31,17 +29,10 @@ class DrillPrepareResult implements AvaticaPrepareResult{
 
   final String sql;
   final DrillColumnMetaDataList columns = new DrillColumnMetaDataList();
-  final PreparedStatement preparedStatement;
 
   DrillPrepareResult(String sql) {
+    super();
     this.sql = sql;
-    this.preparedStatement = null;
-  }
-
-  DrillPrepareResult(String sql, PreparedStatement preparedStatement) {
-    this.sql = sql;
-    this.preparedStatement = preparedStatement;
-    columns.updateColumnMetaData(preparedStatement.getColumnsList());
   }
 
   @Override
@@ -52,11 +43,6 @@ class DrillPrepareResult implements AvaticaPrepareResult{
   @Override
   public String getSql() {
     return sql;
-  }
-
-
-  public PreparedStatement getPreparedStatement() {
-    return preparedStatement;
   }
 
   @Override
