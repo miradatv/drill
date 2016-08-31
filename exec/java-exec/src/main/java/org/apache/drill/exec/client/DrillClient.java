@@ -53,8 +53,6 @@ import org.apache.drill.exec.proto.UserBitShared.QueryId;
 import org.apache.drill.exec.proto.UserBitShared.QueryResult.QueryState;
 import org.apache.drill.exec.proto.UserBitShared.QueryType;
 import org.apache.drill.exec.proto.UserProtos;
-import org.apache.drill.exec.proto.UserProtos.CreatePreparedStatementReq;
-import org.apache.drill.exec.proto.UserProtos.CreatePreparedStatementResp;
 import org.apache.drill.exec.proto.UserProtos.GetCatalogsResp;
 import org.apache.drill.exec.proto.UserProtos.GetCatalogsReq;
 import org.apache.drill.exec.proto.UserProtos.GetColumnsReq;
@@ -65,11 +63,9 @@ import org.apache.drill.exec.proto.UserProtos.GetSchemasResp;
 import org.apache.drill.exec.proto.UserProtos.GetTablesReq;
 import org.apache.drill.exec.proto.UserProtos.GetTablesResp;
 import org.apache.drill.exec.proto.UserProtos.LikeFilter;
-import org.apache.drill.exec.proto.UserProtos.PreparedStatementHandle;
 import org.apache.drill.exec.proto.UserProtos.Property;
 import org.apache.drill.exec.proto.UserProtos.QueryPlanFragments;
 import org.apache.drill.exec.proto.UserProtos.RpcType;
-import org.apache.drill.exec.proto.UserProtos.RunQuery;
 import org.apache.drill.exec.proto.UserProtos.UserProperties;
 import org.apache.drill.exec.proto.helper.QueryIdHelper;
 import org.apache.drill.exec.rpc.BasicClientWithConnection.ServerConnection;
@@ -87,7 +83,6 @@ import org.apache.drill.exec.rpc.user.UserResultsListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractCheckedFuture;
 import com.google.common.util.concurrent.SettableFuture;
@@ -330,22 +325,13 @@ public class DrillClient implements Closeable, ConnectionThrottle {
   }
 
   /**
-   * Submits a string based query plan for execution and returns the result batches. Supported query types are:
-   * <p><ul>
-   *  <li>{@link QueryType#LOGICAL}
-   *  <li>{@link QueryType#PHYSICAL}
-   *  <li>{@link QueryType#SQL}
-   * </ul>
+   * Submits a Logical plan for direct execution (bypasses parsing)
    *
-   * @param type Query type
-   * @param plan Query to execute
+   * @param plan the plan to execute
    * @return a handle for the query result
    * @throws RpcException
    */
   public List<QueryDataBatch> runQuery(QueryType type, String plan) throws RpcException {
-    checkArgument(type == QueryType.LOGICAL || type == QueryType.PHYSICAL || type == QueryType.SQL,
-        String.format("Only query types %s, %s and %s are supported in this API",
-            QueryType.LOGICAL, QueryType.PHYSICAL, QueryType.SQL));
     final UserProtos.RunQuery query = newBuilder().setResultsMode(STREAM_FULL).setType(type).setPlan(plan).build();
     final ListHoldingResultsListener listener = new ListHoldingResultsListener(query);
     client.submitQuery(listener, query);
@@ -366,8 +352,7 @@ public class DrillClient implements Closeable, ConnectionThrottle {
   }
 
   /**
-   * Run query based on list of fragments that were supposedly produced during query planning phase. Supported
-   * query type is {@link QueryType#EXECUTION}
+   * Run query based on list of fragments that were supposedly produced during query planning phase
    * @param type
    * @param planFragments
    * @param resultsListener
@@ -524,62 +509,6 @@ public class DrillClient implements Closeable, ConnectionThrottle {
     }
 
     return client.send(RpcType.GET_COLUMNS, reqBuilder.build(), GetColumnsResp.class);
-  }
-
-  /**
-   * Create a prepared statement for given <code>query</code>.
-   *
-   * @param query
-   * @return
-   */
-  public DrillRpcFuture<CreatePreparedStatementResp> createPreparedStatement(final String query) {
-    final CreatePreparedStatementReq req =
-        CreatePreparedStatementReq.newBuilder()
-            .setSqlQuery(query)
-            .build();
-
-    return client.send(RpcType.CREATE_PREPARED_STATEMENT, req, CreatePreparedStatementResp.class);
-  }
-
-  /**
-   * Execute the given prepared statement.
-   *
-   * @param preparedStatementHandle Prepared statement handle returned in response to
-   *                                {@link #createPreparedStatement(String)}.
-   * @param resultsListener {@link UserResultsListener} instance for listening for query results.
-   */
-  public void executePreparedStatement(final PreparedStatementHandle preparedStatementHandle,
-      final UserResultsListener resultsListener) {
-    final RunQuery runQuery = newBuilder()
-        .setResultsMode(STREAM_FULL)
-        .setType(QueryType.PREPARED_STATEMENT)
-        .setPreparedStatementHandle(preparedStatementHandle)
-        .build();
-    client.submitQuery(resultsListener, runQuery);
-  }
-
-  /**
-   * Execute the given prepared statement and return the results.
-   *
-   * @param preparedStatementHandle Prepared statement handle returned in response to
-   *                                {@link #createPreparedStatement(String)}.
-   * @return List of {@link QueryDataBatch}s. It is responsibility of the caller to release query data batches.
-   * @throws RpcException
-   */
-  @VisibleForTesting
-  public List<QueryDataBatch> executePreparedStatement(final PreparedStatementHandle preparedStatementHandle)
-      throws RpcException {
-    final RunQuery runQuery = newBuilder()
-        .setResultsMode(STREAM_FULL)
-        .setType(QueryType.PREPARED_STATEMENT)
-        .setPreparedStatementHandle(preparedStatementHandle)
-        .build();
-
-    final ListHoldingResultsListener resultsListener = new ListHoldingResultsListener(runQuery);
-
-    client.submitQuery(resultsListener, runQuery);
-
-    return resultsListener.getResults();
   }
 
   /**

@@ -22,10 +22,9 @@ package org.apache.drill.exec.proto.beans;
 
 public enum RequestStatus implements com.dyuproject.protostuff.EnumLite<RequestStatus>
 {
-    UNKNOWN_STATUS(0),
+    UNKNOWN(0),
     OK(1),
-    FAILED(2),
-    TIMEOUT(3);
+    FAILED(2);
     
     public final int number;
     
@@ -43,10 +42,9 @@ public enum RequestStatus implements com.dyuproject.protostuff.EnumLite<RequestS
     {
         switch(number) 
         {
-            case 0: return UNKNOWN_STATUS;
+            case 0: return UNKNOWN;
             case 1: return OK;
             case 2: return FAILED;
-            case 3: return TIMEOUT;
             default: return null;
         }
     }
