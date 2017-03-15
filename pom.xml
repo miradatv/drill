@@ -546,7 +546,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <version>4.0.27.Final</version>
+      <version>4.0.28.Final</version>
     </dependency>
 
     <dependency>
@@ -658,6 +658,16 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <artifactId>libthrift</artifactId>
+        <groupId>org.apache.thrift</groupId>
+        <version>0.9.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>1.11.7</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-aws</artifactId>
         <version>${hadoop.version}</version>
@@ -666,6 +676,14 @@
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sts</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
